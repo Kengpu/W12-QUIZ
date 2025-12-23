@@ -17,6 +17,7 @@ class _NewItemState extends State<NewItem> {
   static const defautName = "New grocery";
   static const defaultQuantity = 1;
   static const defaultCategory = GroceryCategory.fruit;
+  final _formKey = GlobalKey<FormState>();
 
   // Inputs
   final _nameController = TextEditingController();
@@ -43,10 +44,27 @@ class _NewItemState extends State<NewItem> {
 
   void onReset() {
     // Will be implemented later - Reset all fields to the initial values
+     setState(() {
+      _nameController.text = defautName;
+      _quantityController.text = defaultQuantity.toString();
+      _selectedCategory = defaultCategory;
+    });
   }
 
   void onAdd() {
     // Will be implemented later - Create and return the new grocery
+    final isValid = _formKey.currentState!.validate();
+
+    if (!isValid) return;
+
+    Navigator.of(context).pop(
+      Grocery(
+        id: DateTime.now().toString(),
+        name: _nameController.text.trim(),
+        quantity: int.parse(_quantityController.text),
+        category: _selectedCategory,
+      ),
+    );
   }
 
   @override
@@ -76,7 +94,25 @@ class _NewItemState extends State<NewItem> {
                 Expanded(
                   child: DropdownButtonFormField<GroceryCategory>(
                     initialValue: _selectedCategory,
-                    items: [  ],
+                     items: GroceryCategory.values.map((cat) {
+                        return DropdownMenuItem(
+                          value: cat,
+                          child: Row(
+                            children: [
+                              Container(
+                                width: 15,
+                                height: 15,
+                                decoration: BoxDecoration(
+                                  color: cat.color,
+                                  borderRadius: BorderRadius.circular(3),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Text(cat.label),
+                            ],
+                          ),
+                        );
+                      }).toList(),
                     onChanged: (value) {
                       if (value != null) {
                         setState(() {
